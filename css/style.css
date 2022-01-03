@@ -86,6 +86,10 @@ body{
 .fa-check-circle{
     color:#6eb200;
 }
+
+.fa-plus-circle {
+    cursor : pointer;
+}
 .item p.text{
     position: absolute;
     padding:0;

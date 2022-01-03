@@ -4,6 +4,7 @@ const clear = document.querySelector(".clear");
 const dateElement = document.getElementById("date");
 const list = document.getElementById("list");
 const input = document.getElementById("input");
+const upload = document.getElementById("add-to-do");
 
 // classes names
 
@@ -16,9 +17,36 @@ const LINE_THROUGH = "lineThrough";
 let LIST, id;
 
 // get item from local storage
+let data = localStorage.getItem("TODO");
 
-//add item to localstorage
-localStorage.setItem
+
+//check if data is not empty
+
+if(data) {
+    LIST = JSON.parse(data);
+    id = LIST.length; //set the id to the last one in the last
+    LoadList(LIST); //load the list to the user interface
+} else{
+    //if data isn't empty
+    LIST = [];
+    id = 0;
+}
+
+// load items to the user's interface
+function LoadList(array){
+    array.forEach(function(item){
+        addToDo(item.name, item.id, item.done, item.trash);
+    });
+}
+
+//clear the local storage
+
+clear.addEventListener("click", function(){
+    localStorage.clear();
+    location.reload();
+})
+
+
 // Show todays date
 
 const options = {weekday : "long", month: "short", day:"numeric"};
@@ -28,7 +56,7 @@ dateElement.innerHTML = today.toLocaleDateString("en-US", options);
 
 //add to do function
 
-function addToDO(toDo, id, done, trash){
+function addToDo(toDo, id, done, trash){
     
     if(trash){ return; }
 
@@ -45,30 +73,65 @@ function addToDO(toDo, id, done, trash){
     list.insertAdjacentHTML(position, item);
 }
 
-// add an item to the list user the Enter key
+// Create a new list item when clicking on the "Add" button
 
-document.addEventListener("keyup", function(even){
-    if(event.keyCode == 13){
-        const toDo = input.value;
+function newElement() {
+    const toDo = input.value;
 
         //if the input isn't empty
         if(toDo) {
-            addToDO(toDo);
+            addToDo(toDo, id, false, false);
 
-            list.push({
+           LIST.push({
                 name : toDo,
                 id : id,
                 done : false,
                 trash : false,
             });
+            
+            //add item to localstorage (this code must be added where the list array is updated)
+            localStorage.setItem("TODO", JSON.stringify(LIST));
 
             id++;
+        } else {
+            alert ('you must write something!')
+        }
+        input.value = "";
+
+}
+
+
+// add an item to the list user the Enter key
+
+document.addEventListener("keyup", function(event){
+    if(event.keyCode == 13){
+        const toDo = input.value;
+
+        //if the input isn't empty
+        if(toDo) {
+            addToDo(toDo, id, false, false);
+
+           LIST.push({
+                name : toDo,
+                id : id,
+                done : false,
+                trash : false,
+            });
+            
+            //add item to localstorage (this code must be added where the list array is updated)
+            localStorage.setItem("TODO", JSON.stringify(LIST));
+
+            id++;
+        } else {
+            alert ("you must write something!")
         }
         input.value = "";
     }
 });
 
-addToDO("Jogging",list, false, false);
+
+addToDo("Jogging", list, false, false);
+
 
 //complete to do
 
@@ -91,11 +154,14 @@ function removeToDo(element){
 
 list.addEventListener("click", function(event){
     const element = event.target; //return clicked element inside list
-    const elementJob = element.attributes.job.value;
+    const elementJob = element.attributes.job.value; //complete or delete
 
     if (elementJob == "complete"){
         completeToDO(element);
     } else if (elementJob == "delete"){
         removeToDo(element);
     }
+
+     //add item to localstorage (this code must be added where the lis array is updated)
+     localStorage.setItem("TODO", JSON.stringify(List));
 });
